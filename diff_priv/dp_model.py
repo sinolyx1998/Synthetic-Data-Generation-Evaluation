@@ -20,17 +20,19 @@ train_data, test_data = train_test_split(data, test_size=0.2, random_state=42)
 
 # Train 
 dp_model = DP_CGAN(
-    epochs=200,
+    epochs = 200,
     batch_size = 1024,
     log_frequency = True,
     verbose = True,
-    generator_dim=(256, 256),
-    discriminator_dim=(256, 256),
-    generator_lr=2e-4, 
-    discriminator_lr=2e-4,
-    discriminator_steps=1, 
+    generator_dim = (256, 256),
+    discriminator_dim = (256, 256),
+    generator_lr = 2e-4, 
+    discriminator_lr = 2e-4,
+    discriminator_steps = 1, 
     private = True
 )
+
+print("hor yi")
 
 dp_model.fit(train_data)
 

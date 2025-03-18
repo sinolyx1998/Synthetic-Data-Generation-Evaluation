@@ -32,8 +32,6 @@ dp_model = DP_CGAN(
     private = True
 )
 
-print("hor yi")
-
 dp_model.fit(train_data)
 
 

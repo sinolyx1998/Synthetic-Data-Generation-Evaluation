@@ -1,2 +1,3 @@
 venv/
 diff_priv/diabetic_data.csv
+.DS_Store

@@ -6,8 +6,6 @@ import pandas as pd
 from dp_cgans import DP_CGAN
 
 
-# Load your dataset
-
 original_data = pd.read_csv('diff_priv/diabetic_data.csv')
 
 # Preprocessing drop criteria: 
@@ -27,38 +25,43 @@ label_encoders = {col: LabelEncoder() for col in categorical_columns}
 for col in categorical_columns:
     data[col] = label_encoders[col].fit_transform(data[col])
 
-# train_data, test_data = train_test_split(data, test_size=0.2, random_state=42)
-small_data = data.sample(1000, random_state=42)
-train_data, test_data = train_test_split(small_data, test_size=0.2, random_state=42)
+train_data, test_data = train_test_split(data, test_size=0.2, random_state=42)
 
-dp_model = DP_CGAN(
-    epochs = 2,
-    batch_size = 32,
-    verbose = True,
-    generator_dim = (256, 256),
-    discriminator_dim = (256, 256),
-    generator_lr = 1e-4, 
-    discriminator_lr = 1e-4,
-    discriminator_steps = 1, 
-    private = True,
-    pac=4
-)
+# Run this smaller batch to test and see if it works I hope its okkkkkk :(
+# *********************************************************************************************
+# small_data = data.sample(1000, random_state=42)
+# train_data, test_data = train_test_split(small_data, test_size=0.2, random_state=42)
 
-# # Train 
 # dp_model = DP_CGAN(
-#     epochs = 200,
-#     batch_size = 1024,
+#     epochs = 2,
+#     batch_size = 32,
 #     verbose = True,
 #     generator_dim = (256, 256),
 #     discriminator_dim = (256, 256),
 #     generator_lr = 1e-4, 
 #     discriminator_lr = 1e-4,
 #     discriminator_steps = 1, 
-#     private = True
+#     private = True,
+#     pac=4
 # )
+# dp_model.fit(small_data)
+# print("done")
+# *********************************************************************************************
 
-dp_model.fit(small_data)
-print("done")
+# Train 
+dp_model = DP_CGAN(
+    epochs = 200,
+    batch_size = 1024,
+    verbose = True,
+    generator_dim = (256, 256),
+    discriminator_dim = (256, 256),
+    generator_lr = 1e-4, 
+    discriminator_lr = 1e-4,
+    discriminator_steps = 1, 
+    private = True
+)
+
+dp_model.fit(train_data)
 
 # # # Generate synthetic data
 # # synthetic_data = dp_model.sample(len(test_data))

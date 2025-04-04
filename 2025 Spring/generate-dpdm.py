@@ -58,7 +58,7 @@ original_data = pd.read_csv(infile)
 data = original_data.drop(columns=["patientunitstayid", "patienthealthsystemstayid", "hospitalid", "wardid", "uniquepid"])
 
 # Treat ages greater than 89 as 90
-data["age"] = data["age"].apply(lambda x: 90 if x == "> 89" else x)
+data["age"] = data["age"].apply(lambda x: 90 if x == "> 89" else int(x))
 
 # Columns represented in hh:mm:ss format
 time_cols = ["hospitaladmittime24", "hospitaldischargetime24", "unitadmittime24", "unitdischargetime24"]
@@ -71,6 +71,8 @@ def hms_to_int(time):
 # Convert times to integer second counts
 for col in time_cols:
     data[col] = data[col].apply(lambda x: hms_to_int(x))
+
+categorical_columns = data.select_dtypes(exclude=["int", "float"]).columns
 
 # TODO: Set delta adaptively. 10^-5 is fine for smaller data sets, but delta should be less than 1/n or ideally less than 1/(n^2).
 
@@ -95,19 +97,7 @@ td = table_diffusion.TableDiffusion_Synthesiser(
 td.fit(
     df=data,
     epsilon=epsilon,
-    discrete_columns = [
-        "gender",
-        "ethnicity",
-        "apacheadmissiondx",
-        "hospitaladmitsource",
-        "hospitaldischargelocation",
-        "hospitaldischargestatus",
-        "unittype",
-        "unitadmitsource",
-        "unitstaytype",
-        "unitdischargelocation",
-        "unitdischargestatus",
-    ],
+    discrete_columns=categorical_columns,
 )
 
 # Generate synthetic data

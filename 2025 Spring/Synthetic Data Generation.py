@@ -9,6 +9,13 @@ from models import table_diffusion
 # Load your dataset
 original_data = pd.read_csv('patient.csv')
 
+# TODO: Preprocessing
+# Some things to consider:
+# - What do we not need? (IDs, etc.)
+# - How do we handle mixed data? (E.g., age values include "> 89". Do we normalize this to "90" or something, or do we treat age as categorical?)
+# - We should treat times as numbers. We should probably convert them to seconds out of 86400.
+# - We seem to get issues when values are empty, so preprocessing should probably ensure we have a value everywhere.
+
 """
 # Preprocessing
 data = original_data.drop(columns=["encounter_id", "patient_nbr"])
@@ -26,10 +33,32 @@ epsilon_target = 1.0
 # Train TableDiffusion
 td = table_diffusion.TableDiffusion_Synthesiser(
     epsilon_target=epsilon_target,
+    # Set delta appropriately small, default is 10^-5
+    # delta = 1e-5,
+    cuda=False,
 )
 td.fit(
     df=original_data,
     epsilon=epsilon_target,
+    discrete_columns = [
+        "gender",
+        "age", # should not be categorical
+        "ethnicity",
+        "apacheadmissiondx",
+        "hospitaladmittime24", # should not be categorical
+        "hospitaladmitsource",
+        "hospitaldischargetime24", # should not be categorical
+        "hospitaldischargelocation",
+        "hospitaldischargestatus",
+        "unittype",
+        "unitadmittime24", # should not be categorical
+        "unitadmitsource",
+        "unitstaytype",
+        "unitdischargetime24", # should not be categorical
+        "unitdischargelocation",
+        "unitdischargestatus",
+        "uniquepid", # should be removed
+    ],
 )
 
 # Generate synthetic data

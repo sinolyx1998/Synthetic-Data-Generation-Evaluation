@@ -16,6 +16,7 @@ These steps need to be run once to set up this project for synthetic data genera
 6. Install python dependencies: `pip install -r requirements.txt`
 7. Clone the TableDiffusion code to the modules directory: `mkdir -p modules && git clone https://github.com/gianlucatruda/TableDiffusion.git modules/TableDiffusion`
 8. Download and extract the demo patient.csv file: `curl -LO "https://physionet.org/files/eicu-crd-demo/2.0.1/patient.csv.gz?download" && gunzip patient.csv.gz`
+9. (Until we have a better preprocessing step) Remove lines with missing data: `mv patient.csv patient.csv.orig && sed '/,,/d' patient.csv.orig > patient.csv` (Tested on Linux. On macOS/BSDs, try `mv patient.csv patient.csv.orig && sed -e '/,,/d' patient.csv.orig > patient.csv`)
 
 ### Generating Synthetic Data
 

@@ -110,7 +110,7 @@ synthetic_data["age"] = synthetic_data["age"].apply(lambda x: max(round(x), 0) i
 
 # Helper function to convert an integer second count to hh:mm:ss
 def int_to_hms(time):
-    return str(time // (60*60)).zfill(2) + ':' + str(time % (60*60) // 60).zfill(2) + ':' + str(time % 60).zfill(2)
+    return str(time // (60*60) % 24).zfill(2) + ':' + str(time % (60*60) // 60).zfill(2) + ':' + str(time % 60).zfill(2)
 
 # Convert times back to hh:mm:ss format
 for col in time_cols:

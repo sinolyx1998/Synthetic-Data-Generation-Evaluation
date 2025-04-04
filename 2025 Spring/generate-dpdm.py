@@ -54,10 +54,23 @@ original_data = pd.read_csv(infile)
 
 # TODO: Preprocessing
 # Some things to consider:
-# - What do we not need? (IDs, etc.)
-# - How do we handle mixed data? (E.g., age values include "> 89". Do we normalize this to "90" or something, or do we treat age as categorical?)
-# - We should treat times as numbers. We should probably convert them to seconds out of 86400.
 # - We seem to get issues when values are empty, so preprocessing should probably ensure we have a value everywhere.
+data = original_data.drop(columns=["patientunitstayid", "patienthealthsystemstayid", "hospitalid", "wardid", "uniquepid"])
+
+# Treat ages greater than 89 as 90
+data["age"] = data["age"].apply(lambda x: 90 if x == "> 89" else x)
+
+# Columns represented in hh:mm:ss format
+time_cols = ["hospitaladmittime24", "hospitaldischargetime24", "unitadmittime24", "unitdischargetime24"]
+
+# Helper function to convert hh:mm:ss time to an integer second count
+def hms_to_int(time):
+    hms = time.split(':')
+    return int(hms[0]) * 60*60 + int(hms[1]) * 60 + int(hms[2])
+
+# Convert times to integer second counts
+for col in time_cols:
+    data[col] = data[col].apply(lambda x: hms_to_int(x))
 
 # TODO: Set delta adaptively. 10^-5 is fine for smaller data sets, but delta should be less than 1/n or ideally less than 1/(n^2).
 
@@ -80,31 +93,40 @@ td = table_diffusion.TableDiffusion_Synthesiser(
     cuda=False,
 )
 td.fit(
-    df=original_data,
+    df=data,
     epsilon=epsilon,
     discrete_columns = [
         "gender",
-        "age", # should not be categorical
         "ethnicity",
         "apacheadmissiondx",
-        "hospitaladmittime24", # should not be categorical
         "hospitaladmitsource",
-        "hospitaldischargetime24", # should not be categorical
         "hospitaldischargelocation",
         "hospitaldischargestatus",
         "unittype",
-        "unitadmittime24", # should not be categorical
         "unitadmitsource",
         "unitstaytype",
-        "unitdischargetime24", # should not be categorical
         "unitdischargelocation",
         "unitdischargestatus",
-        "uniquepid", # should be removed
     ],
 )
 
 # Generate synthetic data
 synthetic_data = td.sample()
+
+# Postprocessing
+
+# Ensure ages are in range 0-89 or "> 89"
+synthetic_data["age"] = synthetic_data["age"].apply(lambda x: max(round(x), 0) if x <= 89 else "> 89")
+
+# Helper function to convert an integer second count to hh:mm:ss
+def int_to_hms(time):
+    return str(time // (60*60)).zfill(2) + ':' + str(time % (60*60) // 60).zfill(2) + ':' + str(time % 60).zfill(2)
+
+# Convert times back to hh:mm:ss format
+for col in time_cols:
+    synthetic_data[col] = synthetic_data[col].apply(lambda x: int_to_hms(x))
+
+# Output synthetic data
 synthetic_data.to_csv(outfile, index=False)
 
 # Exit here and do evaluation separately

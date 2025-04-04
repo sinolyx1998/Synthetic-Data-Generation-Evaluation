@@ -1,13 +1,56 @@
+from docopt import docopt
+
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder
 import pandas as pd
 
+import os
 import sys
 sys.path.append("modules/TableDiffusion/tablediffusion")
 from models import table_diffusion
 
+usage = '''
+Usage: generate-dpdm.py [--epsilon <value>] [--delta <value>] [--cuda <value>] [-i <value>] [-o <value>]
+
+Options:
+
+    --epsilon EPSILON       Specify ε (default is 1.0)
+    --delta DELTA           Specify δ (default is 10^-5)
+    --cuda BOOL             Whether to use CUDA (default is False)
+    -i, --input FILE        Input file (default is patient.csv)
+    -o, --output FILE       Output file (default is synthetic_data.csv)
+    -h, --help              Show this screen
+
+'''
+
+args = docopt(usage)
+
+# Initialize variables with default values
+epsilon = 1.0
+delta = 1e-5
+cuda = False
+infile = "patient.csv"
+outfile = "synthetic_data.csv"
+
+# Set variables to user input if applicable
+if not args["--epsilon"] is None:
+    epsilon = float(args["--epsilon"])
+
+if not args["--delta"] is None:
+    delta = float(args["--delta"])
+
+if not args["--cuda"] is None:
+    cuda = args["--cuda"].lower() == "true"
+
+if not args["--input"] is None:
+    infile = args["--input"]
+    assert(os.path.isfile(infile))
+
+if not args["--output"] is None:
+    outfile = args["--output"]
+
 # Load your dataset
-original_data = pd.read_csv('patient.csv')
+original_data = pd.read_csv(infile)
 
 # TODO: Preprocessing
 # Some things to consider:
@@ -15,6 +58,8 @@ original_data = pd.read_csv('patient.csv')
 # - How do we handle mixed data? (E.g., age values include "> 89". Do we normalize this to "90" or something, or do we treat age as categorical?)
 # - We should treat times as numbers. We should probably convert them to seconds out of 86400.
 # - We seem to get issues when values are empty, so preprocessing should probably ensure we have a value everywhere.
+
+# TODO: Set delta adaptively. 10^-5 is fine for smaller data sets, but delta should be less than 1/n or ideally less than 1/(n^2).
 
 """
 # Preprocessing
@@ -28,18 +73,15 @@ for col in categorical_columns:
 train_data, test_data = train_test_split(data, test_size=0.2, random_state=42)
 """
 
-epsilon_target = 1.0
-
 # Train TableDiffusion
 td = table_diffusion.TableDiffusion_Synthesiser(
-    epsilon_target=epsilon_target,
-    # Set delta appropriately small, default is 10^-5
-    # delta = 1e-5,
+    epsilon_target=epsilon,
+    delta=delta,
     cuda=False,
 )
 td.fit(
     df=original_data,
-    epsilon=epsilon_target,
+    epsilon=epsilon,
     discrete_columns = [
         "gender",
         "age", # should not be categorical
@@ -63,7 +105,12 @@ td.fit(
 
 # Generate synthetic data
 synthetic_data = td.sample()
-synthetic_data.to_csv('synthetic_data.csv', index=False)
+synthetic_data.to_csv(outfile, index=False)
+
+# Exit here and do evaluation separately
+sys.exit(0)
+
+
 
 # Membership Inference Attack
 from sklearn.ensemble import RandomForestClassifier

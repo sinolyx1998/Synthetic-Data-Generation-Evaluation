@@ -1,3 +1,4 @@
+docopt
 einops
 mlflow
 opacus

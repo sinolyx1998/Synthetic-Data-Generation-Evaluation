@@ -1,0 +1,3 @@
+[submodule "diff_priv/dp_cgans"]
+	path = diff_priv/dp_cgans
+	url = https://github.com/sunchang0124/dp_cgans.git

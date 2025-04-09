@@ -29,39 +29,39 @@ train_data, test_data = train_test_split(data, test_size=0.2, random_state=42)
 
 # Run this smaller batch to test and see if it works I hope its okkkkkk :(
 # *********************************************************************************************
-# small_data = data.sample(1000, random_state=42)
-# train_data, test_data = train_test_split(small_data, test_size=0.2, random_state=42)
+small_data = data.sample(1000, random_state=42)
+train_data, test_data = train_test_split(small_data, test_size=0.2, random_state=42)
 
-# dp_model = DP_CGAN(
-#     epochs = 2,
-#     batch_size = 32,
-#     verbose = True,
-#     generator_dim = (256, 256),
-#     discriminator_dim = (256, 256),
-#     generator_lr = 1e-4, 
-#     discriminator_lr = 1e-4,
-#     discriminator_steps = 1, 
-#     private = True,
-#     pac=4
-# )
-# dp_model.fit(small_data)
-# print("done")
-# *********************************************************************************************
-
-# Train 
 dp_model = DP_CGAN(
-    epochs = 200,
-    batch_size = 1024,
+    epochs = 2,
+    batch_size = 32,
     verbose = True,
     generator_dim = (256, 256),
     discriminator_dim = (256, 256),
     generator_lr = 1e-4, 
     discriminator_lr = 1e-4,
     discriminator_steps = 1, 
-    private = True
+    private = True,
+    pac=4
 )
+dp_model.fit(small_data)
+print("done")
+#*********************************************************************************************
 
-dp_model.fit(train_data)
+# # Train 
+# dp_model = DP_CGAN(
+#     epochs = 200,
+#     batch_size = 1024,
+#     verbose = True,
+#     generator_dim = (256, 256),
+#     discriminator_dim = (256, 256),
+#     generator_lr = 1e-4, 
+#     discriminator_lr = 1e-4,
+#     discriminator_steps = 1, 
+#     private = True
+# )
+
+# dp_model.fit(train_data)
 
 # # # Generate synthetic data
 # # synthetic_data = dp_model.sample(len(test_data))

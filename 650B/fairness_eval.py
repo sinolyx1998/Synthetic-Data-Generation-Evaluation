@@ -1,3 +1,5 @@
+from scipy.spatial.distance import jensenshannon
+
 def evaluate_fairness(real_df, synth_df, sensitive_attr, outcome):
     fairness_results = {}
     groups = real_df[sensitive_attr].unique()

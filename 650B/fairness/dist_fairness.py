@@ -1,4 +1,5 @@
 from scipy.spatial.distance import jensenshannon
+from scipy.stats import wasserstein_distance
 from sklearn.preprocessing import LabelEncoder
 import pandas as pd
 
@@ -32,7 +33,7 @@ for col in ['age', 'gender', 'race']:
 # mapping readmission
 readmit_map = {'<30': 0, '>30': 1, 'NO': 2}
 real_df.loc[:, 'readmitted'] = real_df['readmitted'].map(readmit_map)
-synth_df['readmitted'] = synth_df['readmitted'].astype(int)
+synth_df['readmitted'] = ['readmitted'].astype(int)
 
 # remap values for age, gender, race
 age_map = {'[0-10)': 0, '[10-20)': 1, '[20-30)': 2, '[30-40)': 3, '[40-50)': 4, 
@@ -54,7 +55,8 @@ real_df_resampled = real_df.sample(n=len(synth_df), random_state=42)
 
 def evaluate_fairness(real_df, synth_df, sensitive_attr, outcome):
 
-    fairness_results = {}
+    fairness_JSD = {}
+    fairness_W = {}
     groups = real_df[sensitive_attr].unique()
 
     for group in groups:
@@ -70,11 +72,15 @@ def evaluate_fairness(real_df, synth_df, sensitive_attr, outcome):
         synth_probs = synth_dist.reindex(all_outcomes, fill_value=0).values
 
         jsd_score = jensenshannon(real_probs, synth_probs, base=2)
-        fairness_results[group] = jsd_score
+        w_dist = wasserstein_distance(real_group.values, synth_group.values)
 
-    sorted_fairness = dict(sorted(fairness_results.items(), key=lambda item: item[0]))
+        fairness_JSD[group] = jsd_score
+        fairness_W[group] = w_dist
 
-    return sorted_fairness
+        sorted_JSD = dict(sorted(fairness_JSD.items(), key=lambda item: item[0]))
+        sorted_W = dict(sorted(fairness_W.items(), key=lambda item: item[0]))
+
+    return sorted_JSD, sorted_W
 
 # Adjust the following column names based on your dataset.
 outcome_variable = "readmitted"   # example outcome variable

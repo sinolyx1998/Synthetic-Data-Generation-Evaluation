@@ -1,6 +1,3 @@
-from sklearn.metrics import confusion_matrix
-from scipy.spatial.distance import jensenshannon
-from scipy.stats import wasserstein_distance
 from sklearn.preprocessing import LabelEncoder
 import pandas as pd
 

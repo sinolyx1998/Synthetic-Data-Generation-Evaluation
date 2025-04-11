@@ -33,7 +33,7 @@ for col in ['age', 'gender', 'race']:
 # mapping readmission
 readmit_map = {'<30': 0, '>30': 1, 'NO': 2}
 real_df.loc[:, 'readmitted'] = real_df['readmitted'].map(readmit_map)
-synth_df['readmitted'] = ['readmitted'].astype(int)
+synth_df['readmitted'] = synth_df['readmitted'].astype(int)
 
 # remap values for age, gender, race
 age_map = {'[0-10)': 0, '[10-20)': 1, '[20-30)': 2, '[30-40)': 3, '[40-50)': 4, 

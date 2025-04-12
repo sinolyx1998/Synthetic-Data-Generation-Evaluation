@@ -71,6 +71,3 @@ synthetic_data = ctgan.sample(train_data_size)
 # save synthetic
 synthetic_data.to_csv('synthetic_data.csv', index=False)
 
-
-
-

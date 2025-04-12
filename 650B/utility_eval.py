@@ -2,7 +2,7 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, roc_auc_score
 import pandas as pd
 
-synthetic_data = pd.read_csv('synthetic_data.csv')
+synthetic_data = pd.read_csv('synthetic_test.csv')
 synth_data = pd.read_csv('synthetic_diabetic_data_650B.csv')
 test_data = pd.read_csv('test_preprocessed_data.csv')
 

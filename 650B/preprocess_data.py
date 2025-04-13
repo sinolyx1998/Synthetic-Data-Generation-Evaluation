@@ -454,10 +454,6 @@ for col in medications:
     df_zerovar[col] = df_zerovar[col].map(medication_map)
 
 
-# for col in df_zerovar.columns:
-#     print(df_zerovar[col].unique())
-# print(df_zerovar.shape)
-
 # (65901, 34)
 
 df_zerovar.to_csv('diabetes_clean.csv', index=False)

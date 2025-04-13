@@ -1,8 +1,10 @@
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, roc_auc_score
 import pandas as pd
+import matplotlib.pyplot as plt
+import numpy as np
 
-synthetic_data = pd.read_csv('synthetic_test.csv')
+synthetic_data = pd.read_csv('synthetic_data.csv')
 synth_data = pd.read_csv('synthetic_diabetic_data_650B.csv')
 test_data = pd.read_csv('test_preprocessed_data.csv')
 
@@ -11,10 +13,10 @@ target_column = "readmitted"
 sensitive_attributes = ['age', 'race', 'gender']
 
 # Extract features and target
-X_synthetic = synthetic_data.drop(columns=[target_column] + sensitive_attributes)
+X_synthetic = synthetic_data.drop(columns=[target_column])
 y_synthetic = synthetic_data[target_column]
 
-X_real = test_data.drop(columns=[target_column] + sensitive_attributes)
+X_real = test_data.drop(columns=[target_column])
 y_real = test_data[target_column]
 
 # Train a Random Forest model on synthetic data
@@ -40,3 +42,17 @@ else:
 
 print("Utility Results:", utility_results)
 
+# Get feature importances
+importances = utility_model.feature_importances_
+feature_names = X_synthetic.columns
+
+# Sort by importance
+indices = np.argsort(importances)[::-1]
+
+# Plot
+plt.figure(figsize=(10, 6))
+plt.title("Feature Importance from Random Forest")
+plt.bar(range(len(importances)), importances[indices], align='center')
+plt.xticks(range(len(importances)), [feature_names[i] for i in indices], rotation=90)
+plt.tight_layout()
+plt.show()

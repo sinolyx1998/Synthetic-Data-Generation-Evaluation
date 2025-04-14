@@ -5,11 +5,16 @@ import pandas as pd
 import numpy as np
 import pickle
 
-train_data, test_data = train_test_split(sampled_data, test_size=0.2, 
+
+df=pd.read_csv('CS650B/datasets/diabetes_clean_final.csv')
+
+train_data, test_data = train_test_split(df, test_size=0.2, 
                                          random_state=42)
 
 # save train data for eval
-test_data.to_csv('test_preprocessed_data.csv', index=False)
+test_data.to_csv('test_data_final.csv', index=False)
+test_data.to_csv('train_data_final.csv', index=False)
+
 
 # Train CTGAN
 ctgan = CTGAN(
@@ -21,9 +26,9 @@ ctgan = CTGAN(
     pac = 2
 )
 
-ctgan.fit(train_data, discrete_columns=list(categorical_columns))
+ctgan.fit(train_data)
 
-with open('ctgan_model2.pkl', 'wb') as f:
+with open('ctgan_model.pkl', 'wb') as f:
     pickle.dump(ctgan, f)
 
 # Generate synthetic data
@@ -31,5 +36,5 @@ train_data_size = len(train_data)
 synthetic_data = ctgan.sample(train_data_size)
 
 # save synthetic
-synthetic_data.to_csv('synthetic_data.csv', index=False)
+synthetic_data.to_csv('synthetic_data_final.csv', index=False)
 

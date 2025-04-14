@@ -4,9 +4,10 @@ from sklearn.preprocessing import LabelEncoder
 import pandas as pd
 import numpy as np
 import pickle
+import matplotlib.pyplot as plt
 
 
-df = pd.read_csv('diabetic_data.csv')
+df = pd.read_csv('CS650B/datasets/diabetic_data.csv')
 
 # # check unique values for each attribute
 attributes = df.columns
@@ -38,7 +39,6 @@ df_drop = df_first_admission.drop(columns=['encounter_id', 'patient_nbr'])
 # drop unknown/invalid genders
 df_gender = df_drop[df_drop['gender'] != 'Unknown/Invalid'] # (71515, 45)
 df_admission = df_gender[df_gender['admission_type_id'] != 6] #(66927, 45)
-
 
 # find zero variance variables
 zero_var = []
@@ -86,15 +86,15 @@ df_zerovar.loc[:, 'gender'] = df_zerovar['gender'].map(gender_map)
 #******************************************************************************
 age_map = {
     '[0-10)': 0,
-    '[10-20)': 1,
-    '[20-30)': 2,
-    '[30-40)': 3,
-    '[40-50)': 4,
-    '[50-60)': 5,
-    '[60-70)': 6,
-    '[70-80)': 7,
-    '[80-90)': 8,
-    '[90-100)': 9
+    '[10-20)': 0,
+    '[20-30)': 0,
+    '[30-40)': 0,
+    '[40-50)': 1,
+    '[50-60)': 1,
+    '[60-70)': 1,
+    '[70-80)': 1,
+    '[80-90)': 1,
+    '[90-100)': 1
 }
 df_zerovar.loc[:, 'age'] = df_zerovar['age'].map(age_map)
 # for col in df_zerovar.columns:
@@ -102,15 +102,11 @@ df_zerovar.loc[:, 'age'] = df_zerovar['age'].map(age_map)
 
 #******************************************************************************
 # Admission_type_id
+# changed to known and unknown
 #******************************************************************************
 # map values for NULL, not available, and not mapped as unknown category
-admission_type_map = {
-    5: 0,
-    8: 0,
-    7: 5 #move Trauma admission up to fill gap of unknown categories
-}
-df_zerovar.loc[:, 'admission_type_id'] = df_zerovar['admission_type_id'].apply(lambda x: admission_type_map.get(x, x))
-
+df_zerovar['admission_type_id'] = np.where(
+    df_zerovar['admission_type_id'].isin([5,6,8]), 0, 1)
 
 #******************************************************************************
 # Discharge_disposition_id: 
@@ -144,7 +140,99 @@ df_zerovar['admission_source_id'] = np.where(
     df_zerovar['admission_source_id'])
 
 df_zerovar['admission_source_id'] = np.where(
-    df_zerovar['admission_source_id'].isin([11, 12, 13, 14, 23, 24]), 3, 4)
+    df_zerovar['admission_source_id'].isin([11, 12, 13, 14, 23, 24]), 3, 
+    df_zerovar['admission_source_id'])
+
+#******************************************************************************
+# Number of lab procedures
+#******************************************************************************
+
+df_zerovar['num_lab_procedures'] = np.where(
+    (df_zerovar['num_lab_procedures'].between(1, 20, inclusive='both')), 0, 
+    df_zerovar['num_lab_procedures']
+)
+
+df_zerovar['num_lab_procedures'] = np.where(
+    (df_zerovar['num_lab_procedures'].between(21, 40, inclusive='both')), 1, 
+    df_zerovar['num_lab_procedures']
+)
+
+df_zerovar['num_lab_procedures'] = np.where(
+    (df_zerovar['num_lab_procedures'].between(41, 60, inclusive='both')), 2, 
+    df_zerovar['num_lab_procedures']
+)
+
+df_zerovar['num_lab_procedures'] = np.where(
+    (df_zerovar['num_lab_procedures'].between(60, 132, inclusive='both')), 3, 
+    df_zerovar['num_lab_procedures']
+)
+
+
+#******************************************************************************
+# Number of medications
+#******************************************************************************
+df_zerovar['num_medications'] = np.where(
+    (df_zerovar['num_medications'].between(1, 10, inclusive='both')), 0, 
+    df_zerovar['num_medications']
+)
+
+df_zerovar['num_medications'] = np.where(
+    (df_zerovar['num_medications'].between(11, 20, inclusive='both')), 1, 
+    df_zerovar['num_medications']
+)
+
+df_zerovar['num_medications'] = np.where(
+    (df_zerovar['num_medications'].between(21, 30, inclusive='both')), 2, 
+    df_zerovar['num_medications']
+)
+
+df_zerovar['num_medications'] = np.where(
+    (df_zerovar['num_medications'].between(31, 81, inclusive='both')), 3, 
+    df_zerovar['num_medications']
+)
+
+#******************************************************************************
+# Number of outpatient
+#******************************************************************************
+df_zerovar['number_outpatient'] = np.where(
+    (df_zerovar['number_outpatient'].between(0, 2, inclusive='both')), 0, 
+    df_zerovar['number_outpatient']
+)
+
+df_zerovar['number_outpatient'] = np.where(
+    (df_zerovar['number_outpatient'].between(3, 42, inclusive='both')), 1, 
+    df_zerovar['number_outpatient']
+)
+
+#******************************************************************************
+# Number of emergency
+    # 1 or more
+#******************************************************************************
+
+df_zerovar['number_emergency'] = np.where(
+    (df_zerovar['number_emergency'].between(1, 42, inclusive='both')), 1, 
+    df_zerovar['number_emergency']
+)
+
+#******************************************************************************
+# Number of inpatient
+    # 1 or more
+#******************************************************************************
+
+df_zerovar['number_inpatient'] = np.where(
+    (df_zerovar['number_inpatient'].between(1, 12, inclusive='both')), 1, 
+    df_zerovar['number_inpatient']
+)
+
+#******************************************************************************
+# Number of diagnoses
+    # 9 or more
+#******************************************************************************
+
+df_zerovar['number_diagnoses'] = np.where(
+    (df_zerovar['number_diagnoses'].between(9, 16, inclusive='both')), 9, 
+    df_zerovar['number_diagnoses']
+)
 
 #******************************************************************************
 # For all 3 diagnoses
@@ -442,8 +530,8 @@ df_zerovar['readmitted'] = df_zerovar['readmitted'].map(readmitted_map)
 medication_map = {
     'No': 0,
     'Steady': 1, 
-    'Up': 2, 
-    'Down': 3
+    'Up': 1, 
+    'Down': 1
 }
 
 medications = [
@@ -454,7 +542,18 @@ for col in medications:
     df_zerovar[col] = df_zerovar[col].map(medication_map)
 
 
+print(df_zerovar.shape)
 # (65901, 34)
 
-df_zerovar.to_csv('diabetes_clean.csv', index=False)
+numerical_columns = df_zerovar.select_dtypes(include=["int64", "float64"]).columns
 
+# for col in numerical_columns:
+#     plt.figure(figsize=(8, 4))
+#     plt.hist(df_zerovar[col], bins=30, alpha=0.5, label='Real', color='blue', density=True)
+#     # plt.hist(synthetic_data[col], bins=30, alpha=0.5, label='Synthetic', color='orange', density=True)
+#     plt.title(f"Distribution of {col}")
+#     plt.legend()
+#     plt.show()
+
+
+df_zerovar.to_csv('diabetes_clean_final.csv', index=False)

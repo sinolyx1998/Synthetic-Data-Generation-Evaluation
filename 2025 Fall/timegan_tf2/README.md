@@ -73,3 +73,16 @@ $ python3 main_timegan.py --data_name stock --seq_len 24 --module gru
 -   generated_data: generated synthetic data
 -   metric_results: discriminative and predictive scores
 -   visualization: PCA and tSNE analysis
+
+### Virtual Environment Setup
+-   Install a virtual environment manager (e.g. Conda)
+-   Create and activate a conda virtual environment \
+    ```
+    conda create --name timegan -y python=3.11
+    conda activate timegan
+    ```
+-   Install dependencies from requirement.txt
+    ```
+    # In conda timegan venv
+    pip install -r requirement.txt
+    ```

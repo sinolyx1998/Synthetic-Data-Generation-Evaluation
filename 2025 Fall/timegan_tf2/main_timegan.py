@@ -61,7 +61,7 @@ def main (args):
     - metric_results: discriminative and predictive scores
   """
   ## Data loading
-  if args.data_name in ['stock', 'energy']:
+  if args.data_name in ['stock', 'energy','eICU']:
     ori_data = real_data_loading(args.data_name, args.seq_len)
   elif args.data_name == 'sine':
     # Set number of samples and its dimensions
@@ -118,8 +118,8 @@ if __name__ == '__main__':
   parser = argparse.ArgumentParser()
   parser.add_argument(
       '--data_name',
-      choices=['sine','stock','energy'],
-      default='stock',
+      choices=['sine','stock','energy','eICU'],
+      default='eICU',
       type=str)
   parser.add_argument(
       '--seq_len',
@@ -144,7 +144,7 @@ if __name__ == '__main__':
   parser.add_argument(
       '--iteration',
       help='Training iterations (should be optimized)',
-      default=50000,
+      default=5000,
       type=int)
   parser.add_argument(
       '--batch_size',

@@ -1,0 +1,14 @@
+# conda create --name transfusion -y -c pytorch -c conda-forge python=3.11
+torch
+torchvision
+torchaudio
+# cudatoolkit
+pandas 
+scikit-learn 
+tqdm 
+scipy 
+matplotlib 
+seaborn 
+einops
+tensorboard
+numba
